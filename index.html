@@ -34,6 +34,21 @@ html,body{height:100%;background:#2c2c2c;color:#fff;font-family:-apple-system,"S
 #info{text-align:center;font-size:15px;font-weight:600}
 #upd{color:#3ec27a;font-size:13px;margin-top:4px;font-weight:500}
 #upd.err{color:#ff6b5b}
+#viewport{height:100%;overflow:hidden}
+#track{display:flex;width:200%;height:100%;transition:transform .35s cubic-bezier(.25,.8,.25,1);will-change:transform}
+.page{position:relative;width:50%;height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+.tab{position:absolute;top:38%;width:22px;height:84px;background:rgba(242,163,82,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:5;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.tab span{font-size:22px;font-weight:700;line-height:1}.tab small{font-size:9px;writing-mode:vertical-rl;margin-top:3px;letter-spacing:1px}
+.tabR{right:0;border-radius:12px 0 0 12px}.tabL{left:0;border-radius:0 12px 12px 0}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:5px}.dots i{width:6px;height:6px;border-radius:50%;background:#666}.dots i.on{background:#fff}
+.pad{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr);gap:1px;background:#222}
+.pad button{border:0;font-size:32px;font-weight:600;color:#fff;background:#636363;font-family:inherit}
+.pad button.f{background:#474747}.pad button.op{background:#f2a352}.pad button:active{filter:brightness(1.3)}
+.pad button.op.sel{background:#fff;color:#f2a352}
+.bar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 20px calc(10px + env(safe-area-inset-bottom));background:#2c2c2c}
+.bar button{background:none;border:0;color:#fff;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+.info{text-align:center;font-size:15px;font-weight:600}.upd{text-align:center;color:#3ec27a;font-size:13px;margin-top:3px;font-weight:500}.upd.err{color:#ff6b5b}
+.row{padding-right:30px}
 .spin{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 .sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;z-index:9}
 .sheet.show{display:flex}
@@ -47,22 +62,41 @@ html,body{height:100%;background:#2c2c2c;color:#fff;font-family:-apple-system,"S
 .panel a{color:#4da3ff}
 @media (max-height:700px){.row{height:110px}.amt{font-size:38px}}
 </style></head><body>
-<div id="app">
- <div class="row active" id="r0"><div class="cur" data-i="0"><div class="flag" id="f0"></div><div class="code" id="c0"></div></div><div class="amtwrap"><div class="expr" id="e0"></div><div class="amt" id="a0">1</div></div></div>
- <div class="row" id="r1"><div class="cur" data-i="1"><div class="flag" id="f1"></div><div class="code" id="c1"></div></div><div class="amtwrap"><div class="expr"></div><div class="amt" id="a1">0</div></div></div>
- <div id="pad">
+<div id="viewport"><div id="track"><div class="page" id="P0">
+ <div class="row"><div class="cur" data-i="0"><div class="flag f0"></div><div class="code c0"></div></div><div class="amtwrap"><div class="expr e0"></div><div class="amt a0">1</div></div></div>
+ <div class="row"><div class="cur" data-i="1"><div class="flag f1"></div><div class="code c1"></div></div><div class="amtwrap"><div class="expr"></div><div class="amt a1">0</div></div></div>
+ <div class="pad">
   <button class="f" data-k="C">C</button><button class="f" data-k="B">←</button><button class="f" data-k="S">⇅</button><button class="op" data-k="/">÷</button>
   <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="*">×</button>
   <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="-">−</button>
   <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="+">+</button>
   <button data-k="%">%</button><button data-k="0">0</button><button data-k=".">.</button><button class="op" data-k="=">=</button>
  </div>
- <div id="bar">
-  <button id="refresh" aria-label="重新整理"><svg id="rico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
-  <div><div id="info">載入中…</div><div id="upd"></div></div>
-  <button id="menu" aria-label="資訊"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7.5" r="1.3" fill="#fff"/><circle cx="12" cy="12" r="1.3" fill="#fff"/><circle cx="12" cy="16.5" r="1.3" fill="#fff"/></svg></button>
+ <div class="bar">
+  <button class="refresh" aria-label="重新整理"><svg class="rico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
+  <div><div class="info">載入中…</div><div class="upd"></div><div class="dots"><i class="on"></i><i class=""></i></div></div>
+  <button class="menu" aria-label="資訊"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7.5" r="1.3" fill="#fff"/><circle cx="12" cy="12" r="1.3" fill="#fff"/><circle cx="12" cy="16.5" r="1.3" fill="#fff"/></svg></button>
  </div>
+ <div class="tab tabR" data-go="1"><span>‹</span><small>繼續算</small></div>
 </div>
+<div class="page" id="P1">
+ <div class="row"><div class="cur" data-i="0"><div class="flag f0"></div><div class="code c0"></div></div><div class="amtwrap"><div class="expr e0"></div><div class="amt a0">1</div></div></div>
+ <div class="row"><div class="cur" data-i="1"><div class="flag f1"></div><div class="code c1"></div></div><div class="amtwrap"><div class="expr"></div><div class="amt a1">0</div></div></div>
+ <div class="pad">
+  <button class="f" data-k="C">C</button><button class="f" data-k="B">←</button><button class="f" data-k="S">⇅</button><button class="op" data-k="/">÷</button>
+  <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="*">×</button>
+  <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="-">−</button>
+  <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="+">+</button>
+  <button data-k="%">%</button><button data-k="0">0</button><button data-k=".">.</button><button class="op" data-k="=">=</button>
+ </div>
+ <div class="bar">
+  <button class="refresh" aria-label="重新整理"><svg class="rico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
+  <div><div class="info">載入中…</div><div class="upd"></div><div class="dots"><i class=""></i><i class="on"></i></div></div>
+  <button class="menu" aria-label="資訊"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7.5" r="1.3" fill="#fff"/><circle cx="12" cy="12" r="1.3" fill="#fff"/><circle cx="12" cy="16.5" r="1.3" fill="#fff"/></svg></button>
+ </div>
+ <div class="tab tabL" data-go="0"><span>›</span><small>返回</small></div>
+</div>
+</div></div>
 <div class="sheet" id="picker"><div class="panel"><h3>選擇貨幣</h3><div id="list"></div></div></div>
 <div class="sheet" id="about"><div class="panel"><h3>資料來源</h3><div id="aboutBody"></div></div></div>
 <script>
@@ -70,60 +104,85 @@ const SHEET='1_oeHpdG5VQurroIPG7kzDmwwtfLkCuqLJsN79_zIDGo';
 const CSV=`https://docs.google.com/spreadsheets/d/${SHEET}/gviz/tq?tqx=out:csv&sheet=%E5%8C%AF%E7%8E%87&range=A3:B22`;
 const CC={TWD:'tw',USD:'us',HKD:'hk',GBP:'gb',JPY:'jp',AUD:'au',CAD:'ca',SGD:'sg',CHF:'ch',THB:'th',NZD:'nz',EUR:'eu',KRW:'kr',MYR:'my',IDR:'id',PHP:'ph',VND:'vn',CNY:'cn'};
 const DEC={JPY:0,KRW:0,IDR:0,VND:0,BTC:8};
-let rates={TWD:{name:'新台幣',r:1}},order=['TWD'],sel=JSON.parse(localStorage.fxSel||'["USD","TWD"]'),expr='1',fresh=true,updated=0,pickFor=0;
+let rates={TWD:{name:'新台幣',r:1}},order=['TWD'],fresh=true,updated=0,picking=null,page=0;
 const $=id=>document.getElementById(id);
 function flagHTML(c){if(c==='BTC')return '₿';const k=CC[c];return k?`<img src="https://flagcdn.com/w80/${k}.png" style="width:100%;height:100%;object-fit:cover">`:c.slice(0,1)}
-function setFlag(el,c){el.className='flag'+(c==='BTC'?' btc':'');el.innerHTML=flagHTML(c)}
+function setFlag(el,c){el.className=el.className.replace(/ ?btc/,'')+(c==='BTC'?' btc':'');el.innerHTML=flagHTML(c)}
 function parse(csv){const out={TWD:{name:'新台幣',r:1}},ord=['TWD'];
  csv.trim().split('\n').forEach(l=>{const m=l.match(/^"(.*)","(.*)"/);if(!m)return;const n=m[1].trim(),code=n.slice(-3).toUpperCase(),r=parseFloat(m[2]);
   if(!/^[A-Z]{3}$/.test(code)||!(r>0)||out[code])return;out[code]={name:n.slice(0,-3),r};ord.push(code)});
  return [out,ord]}
 function evalExpr(s){s=s.replace(/[+\-*/.]$/,'');if(!s)return 0;
- s=s.replace(/(\d+\.?\d*)%/g,'($1/100)');
- if(!/^[\d+\-*/.() ]+$/.test(s))return NaN;try{const v=Function('return ('+s+')')();return isFinite(v)?v:NaN}catch(e){return NaN}}
+ s=s.replace(/(\d+\.?\d*(?:e[+-]?\d+)?)%/g,'($1/100)');
+ if(!/^[\d+\-*/.()e ]+$/.test(s))return NaN;try{const v=Function('return ('+s+')')();return isFinite(v)?v:NaN}catch(e){return NaN}}
 function fmt(v,c){if(isNaN(v))return '錯誤';const d=DEC[c]??2;const a=Math.abs(v);let dd=d;if(c!=='BTC'&&a>0&&a<1)dd=Math.max(d,4);
  return v.toLocaleString('en-US',{maximumFractionDigits:dd,minimumFractionDigits:0})}
 function show(s){return s.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−')}
-function render(){const [a,b]=sel;$('c0').textContent=a;$('c1').textContent=b;setFlag($('f0'),a);setFlag($('f1'),b);
- const v=evalExpr(expr);const hasOp=/[+\-*/%]/.test(expr.slice(1));
- $('a0').textContent=hasOp?fmt(v,a):show(expr).replace(/^(-?\d+)/,m=>Number(m).toLocaleString('en-US'));
- $('e0').textContent=hasOp?show(expr):'';
- const ra=rates[a],rb=rates[b];
- $('a1').textContent=ra&&rb?fmt(v*ra.r/rb.r,b):'—';
- $('info').textContent=ra&&rb?`1 ${a} = ${fmt(ra.r/rb.r,b==='BTC'?'BTC':(ra.r/rb.r<1?'X':'Y'))} ${b}`:'載入中…';
- fitAll();updLabel()}
-function fitAll(){['a0','a1'].forEach(id=>{const e=$(id);e.style.fontSize='';let s=parseFloat(getComputedStyle(e).fontSize);while(e.scrollWidth>e.clientWidth&&s>18){s-=2;e.style.fontSize=s+'px'}})}
-function updLabel(){const u=$('upd');if(!updated){u.textContent='';return}const m=Math.floor((Date.now()-updated)/60000);
- if(!fresh){u.className='err';u.textContent='離線・'+ago(m)}else{u.className='';u.textContent=ago(m)}}
 function ago(m){return m<1?'剛剛':m<60?m+' 分鐘前':m<1440?Math.floor(m/60)+' 小時前':Math.floor(m/1440)+' 天前'}
-async function load(){$('rico').classList.add('spin');
+// plain number string, no exponent, trimmed to sensible precision
+function numStr(v){if(!isFinite(v))return '0';let s=String(+v.toPrecision(12));if(/e/.test(s))s=v.toFixed(12).replace(/\.?0+$/,'');return s}
+class Conv{
+ constructor(root,key,def){this.r=root;this.key=key;this.sel=JSON.parse(localStorage[key]||JSON.stringify(def));this.expr='1';
+  root.querySelectorAll('.pad button').forEach(b=>b.addEventListener('click',()=>this.press(b.dataset.k)));
+  root.querySelectorAll('.cur').forEach(c=>c.addEventListener('click',()=>openPicker(this,+c.dataset.i)));
+  root.querySelector('.refresh').onclick=load;root.querySelector('.menu').onclick=openAbout}
+ q(c){return this.r.querySelector(c)}
+ value(){return evalExpr(this.expr)}
+ result(){const ra=rates[this.sel[0]],rb=rates[this.sel[1]];return ra&&rb?this.value()*ra.r/rb.r:NaN}
+ save(){localStorage[this.key]=JSON.stringify(this.sel)}
+ render(){const [a,b]=this.sel;this.q('.c0').textContent=a;this.q('.c1').textContent=b;setFlag(this.q('.f0'),a);setFlag(this.q('.f1'),b);
+  const v=this.value(),e=this.expr,hasOp=/[+\-*/%]/.test(e.slice(1));
+  this.q('.a0').textContent=hasOp?fmt(v,a):(/^\d+(\.\d*)?$/.test(e)?(()=>{const[i,d]=e.split('.');return Number(i).toLocaleString('en-US')+(d!==undefined?'.'+d:'')})():show(e));
+  this.q('.e0').textContent=hasOp?show(e):'';
+  const ra=rates[a],rb=rates[b];this.q('.a1').textContent=ra&&rb?fmt(this.result(),b):'—';
+  this.q('.info').textContent=ra&&rb?`1 ${a} = ${fmt(ra.r/rb.r,b==='BTC'?'BTC':'X')} ${b}`:'載入中…';
+  this.r.querySelectorAll('.op').forEach(x=>x.classList.toggle('sel','+-*/'.includes(x.dataset.k)&&x.dataset.k===e.slice(-1)));
+  this.fit();this.label()}
+ fit(){this.r.querySelectorAll('.amt').forEach(e=>{e.style.fontSize='';let s=parseFloat(getComputedStyle(e).fontSize);while(e.scrollWidth>e.clientWidth&&s>18){s-=2;e.style.fontSize=s+'px'}})}
+ label(){const u=this.q('.upd');if(!updated){u.textContent='';return}const m=Math.floor((Date.now()-updated)/60000);u.className='upd'+(fresh?'':' err');u.textContent=(fresh?'':'離線・')+ago(m)}
+ press(k){let expr=this.expr;const last=expr.slice(-1);
+  if(k==='C')expr='0';
+  else if(k==='B')expr=expr.length>1?expr.slice(0,-1):'0';
+  else if(k==='S'){const v=this.result();this.sel=[this.sel[1],this.sel[0]];if(!isNaN(v))expr=String(+v.toFixed(DEC[this.sel[0]]??2));this.save()}
+  else if(k==='='){const v=evalExpr(expr);expr=isNaN(v)?'0':numStr(v)}
+  else if('+-*/'.includes(k)){if('+-*/'.includes(last))expr=expr.slice(0,-1)+k;else if(last!=='.')expr+=k}
+  else if(k==='%'){if(/\d$/.test(expr))expr+='%'}
+  else if(k==='.'){const seg=expr.split(/[+\-*/]/).pop();if(!seg.includes('.')&&!seg.includes('%'))expr+=(seg===''?'0.':'.')}
+  else{if(last==='%')expr+='*';const seg=expr.split(/[+\-*/]/).pop();if(expr==='0')expr=k;else if(seg==='0')expr=expr.slice(0,-1)+k;else if(seg.replace('.','').length<12)expr+=k}
+  this.expr=expr;this.render()}
+}
+const P=[new Conv($('P0'),'fxSel',['USD','TWD']),new Conv($('P1'),'fxSel2',['TWD','USD'])];
+function renderAll(){P.forEach(p=>p.render())}
+function carry(){const a=P[0],b=P[1],v=a.result();b.sel[0]=a.sel[1];
+ if(b.sel[1]===b.sel[0])b.sel[1]=b.sel[0]==='TWD'?'USD':'TWD';
+ if(!rates[b.sel[1]])b.sel[1]=b.sel[0]==='TWD'?'USD':'TWD';
+ b.expr=isNaN(v)?'0':numStr(v);b.save();b.render()}
+const track=$('track');
+function go(n){if(n===1&&page!==1)carry();page=n;track.style.transition='';track.style.transform=`translateX(${-50*n}%)`}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>go(+t.dataset.go)));
+// swipe
+let sx=0,sy=0,dx=0,drag=false,lock=null;
+track.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;dx=0;drag=true;lock=null},{passive:true});
+track.addEventListener('touchmove',e=>{if(!drag)return;const t=e.touches[0];dx=t.clientX-sx;const dy=t.clientY-sy;
+ if(lock===null&&(Math.abs(dx)>8||Math.abs(dy)>8))lock=Math.abs(dx)>Math.abs(dy)?'x':'y';
+ if(lock!=='x')return;e.preventDefault();let off=-page*innerWidth+dx;off=Math.min(0,Math.max(-innerWidth,off));
+ track.style.transition='none';track.style.transform=`translateX(${off/2/innerWidth*100}%)`},{passive:false});
+track.addEventListener('touchend',()=>{if(!drag)return;drag=false;if(lock!=='x'){return}
+ const th=Math.min(80,innerWidth*.2);let n=page;if(dx<-th)n=1;else if(dx>th)n=0;go(n)});
+function openPicker(conv,i){picking=[conv,i];$('list').innerHTML=order.map(c=>`<div class="item ${c===conv.sel[i]?'on':''}" data-c="${c}"><div class="flag${c==='BTC'?' btc':''}">${flagHTML(c)}</div><div class="n">${c}<small>${rates[c].name}</small></div></div>`).join('');
+ $('list').querySelectorAll('.item').forEach(it=>it.onclick=()=>{const c=it.dataset.c,o=1-i;if(conv.sel[o]===c)conv.sel[o]=conv.sel[i];conv.sel[i]=c;conv.save();$('picker').classList.remove('show');conv.render()});
+ $('picker').classList.add('show')}
+function openAbout(){$('aboutBody').innerHTML=`<p>匯率來源：你的 Google 試算表「匯率」分頁（GOOGLEFINANCE，約每 20 分鐘更新）。</p><p>匯率為 1 單位外幣兌新台幣，其他貨幣之間以台幣交叉換算。</p><p>往左滑或點右側橘色把手可進入第二頁，把這頁的換算結果帶過去繼續算。</p><p>最後更新：${updated?new Date(updated).toLocaleString('zh-TW'):'—'}${fresh?'':'（離線，使用快取）'}</p><p><a href="https://docs.google.com/spreadsheets/d/${SHEET}/edit" target="_blank">開啟試算表</a></p>`;$('about').classList.add('show')}
+async function load(){document.querySelectorAll('.rico').forEach(r=>r.classList.add('spin'));
  try{const r=await fetch(CSV+'&t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const [o,ord]=parse(await r.text());if(ord.length<2)throw 0;
   rates=o;order=ord;updated=Date.now();fresh=true;localStorage.fxCache=JSON.stringify({rates,order,updated})}
- catch(e){fresh=false;const c=localStorage.fxCache;if(c){const j=JSON.parse(c);rates=j.rates;order=j.order;updated=j.updated}else{$('upd').className='err';$('upd').textContent='無法取得匯率'}}
- $('rico').classList.remove('spin');render()}
-function key(k){const last=expr.slice(-1);
- if(k==='C'){expr='0'}
- else if(k==='B'){expr=expr.length>1?expr.slice(0,-1):'0'}
- else if(k==='S'){const v=evalExpr(expr),ra=rates[sel[0]],rb=rates[sel[1]];sel=[sel[1],sel[0]];if(ra&&rb&&!isNaN(v)){expr=String(+(v*ra.r/rb.r).toFixed(DEC[sel[0]]??2))}save()}
- else if(k==='='){const v=evalExpr(expr);expr=isNaN(v)?'0':String(+v.toFixed(10))}
- else if('+-*/'.includes(k)){if('+-*/'.includes(last))expr=expr.slice(0,-1)+k;else if(last!=='.')expr+=k}
- else if(k==='%'){if(/\d$/.test(expr))expr+='%'}
- else if(k==='.'){const seg=expr.split(/[+\-*/]/).pop();if(!seg.includes('.')&&!seg.includes('%'))expr+=(seg===''?'0.':'.')}
- else{if(last==='%')expr+='*';const seg=expr.split(/[+\-*/]/).pop();if(expr==='0')expr=k;else if(seg==='0')expr=expr.slice(0,-1)+k;else if(seg.replace('.','').length<12)expr+=k}
- document.querySelectorAll('.op').forEach(b=>b.classList.toggle('sel',b.dataset.k===expr.slice(-1)&&'+-*/'.includes(b.dataset.k)));
- render()}
-function save(){localStorage.fxSel=JSON.stringify(sel)}
-document.querySelectorAll('#pad button').forEach(b=>b.addEventListener('click',()=>key(b.dataset.k)));
-document.querySelectorAll('.cur').forEach(c=>c.addEventListener('click',()=>{pickFor=+c.dataset.i;openPicker()}));
-function openPicker(){$('list').innerHTML=order.map(c=>`<div class="item ${c===sel[pickFor]?'on':''}" data-c="${c}"><div class="flag${c==='BTC'?' btc':''}">${flagHTML(c)}</div><div class="n">${c}<small>${rates[c].name}</small></div></div>`).join('');
- $('list').querySelectorAll('.item').forEach(i=>i.onclick=()=>{const c=i.dataset.c,o=1-pickFor;if(sel[o]===c)sel[o]=sel[pickFor];sel[pickFor]=c;save();$('picker').classList.remove('show');render()});
- $('picker').classList.add('show')}
-$('menu').onclick=()=>{$('aboutBody').innerHTML=`<p>匯率來源：你的 Google 試算表「匯率」分頁（GOOGLEFINANCE，約每 20 分鐘更新）。</p><p>匯率為 1 單位外幣兌新台幣，其他貨幣之間以台幣交叉換算。</p><p>最後更新：${updated?new Date(updated).toLocaleString('zh-TW'):'—'}${fresh?'':'（離線，使用快取）'}</p><p><a href="https://docs.google.com/spreadsheets/d/${SHEET}/edit" target="_blank">開啟試算表</a></p>`;$('about').classList.add('show')};
+ catch(e){fresh=false;const c=localStorage.fxCache;if(c){const j=JSON.parse(c);rates=j.rates;order=j.order;updated=j.updated}}
+ document.querySelectorAll('.rico').forEach(r=>r.classList.remove('spin'));renderAll();
+ if(!updated)document.querySelectorAll('.upd').forEach(u=>{u.className='upd err';u.textContent='無法取得匯率'})}
 document.querySelectorAll('.sheet').forEach(s=>s.addEventListener('click',e=>{if(e.target===s)s.classList.remove('show')}));
-$('refresh').onclick=load;
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
-setInterval(updLabel,30000);setInterval(load,10*60000);
-window.addEventListener('resize',fitAll);
-const c=localStorage.fxCache;if(c){const j=JSON.parse(c);rates=j.rates;order=j.order;updated=j.updated;fresh=false}
-render();load();
+setInterval(()=>P.forEach(p=>p.label()),30000);setInterval(load,10*60000);
+addEventListener('resize',()=>P.forEach(p=>p.fit()));
+const c0=localStorage.fxCache;if(c0){const j=JSON.parse(c0);rates=j.rates;order=j.order;updated=j.updated;fresh=false}
+renderAll();load();
 </script></body></html>
