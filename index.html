@@ -22,7 +22,7 @@ html,body{height:100%;background:#2c2c2c;color:#fff;font-family:-apple-system,"S
 .amt{font-size:44px;font-weight:600;text-align:right;flex:1;margin-left:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr}
 .row.active .amt{color:#fff}
 .expr{font-size:16px;color:#aaa;text-align:right}
-.amtwrap{flex:1;display:flex;flex-direction:column;align-items:flex-end;min-width:0}
+.amtwrap{flex:1;overflow:hidden;display:flex;flex-direction:column;align-items:flex-end;min-width:0}
 #pad{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr);gap:1px;background:#222}
 #pad button{border:0;font-size:32px;font-weight:600;color:#fff;background:#636363;font-family:inherit}
 #pad button.f{background:#474747}
@@ -138,7 +138,9 @@ class Conv{
   this.q('.info').textContent=ra&&rb?`1 ${a} = ${fmt(ra.r/rb.r,b==='BTC'?'BTC':'X')} ${b}`:'載入中…';
   this.r.querySelectorAll('.op').forEach(x=>x.classList.toggle('sel','+-*/'.includes(x.dataset.k)&&x.dataset.k===e.slice(-1)));
   this.fit();this.label()}
- fit(){this.r.querySelectorAll('.amt').forEach(e=>{e.style.fontSize='';let s=parseFloat(getComputedStyle(e).fontSize);while(e.scrollWidth>e.clientWidth&&s>18){s-=2;e.style.fontSize=s+'px'}})}
+ fit(){this.r.querySelectorAll('.amt').forEach(e=>{e.style.fontSize='';const w=e.parentElement.clientWidth-4;if(!w)return;const base=parseFloat(getComputedStyle(e).fontSize);
+  const m=document.createElement('span');m.style.cssText=`position:absolute;visibility:hidden;white-space:nowrap;font:${getComputedStyle(e).font}`;m.textContent=e.textContent;document.body.appendChild(m);const tw=m.getBoundingClientRect().width;m.remove();
+  if(tw>w)e.style.fontSize=Math.max(14,Math.floor(base*w/tw))+'px'})}
  label(){const u=this.q('.upd');if(!updated){u.textContent='';return}const m=Math.floor((Date.now()-updated)/60000);u.className='upd'+(fresh?'':' err');u.textContent=(fresh?'':'離線・')+ago(m)}
  press(k){let expr=this.expr;const last=expr.slice(-1);
   if(k==='C')expr='0';
@@ -156,9 +158,9 @@ function renderAll(){P.forEach(p=>p.render())}
 function carry(){const a=P[0],b=P[1],v=a.result();b.sel[0]=a.sel[1];
  if(b.sel[1]===b.sel[0])b.sel[1]=b.sel[0]==='TWD'?'USD':'TWD';
  if(!rates[b.sel[1]])b.sel[1]=b.sel[0]==='TWD'?'USD':'TWD';
- b.expr=isNaN(v)?'0':numStr(v);b.save();b.render()}
+ const d=DEC[a.sel[1]]??2,dd=(a.sel[1]!=='BTC'&&Math.abs(v)>0&&Math.abs(v)<1)?Math.max(d,4):d;b.expr=isNaN(v)?'0':numStr(+v.toFixed(dd));b.save();b.render()}
 const track=$('track');
-function go(n){if(n===1&&page!==1)carry();page=n;track.style.transition='';track.style.transform=`translateX(${-50*n}%)`}
+function go(n){if(n===1&&page!==1)carry();page=n;track.style.transition='';track.style.transform=`translateX(${-50*n}%)`;setTimeout(()=>P.forEach(p=>p.fit()),380)}
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>go(+t.dataset.go)));
 // swipe
 let sx=0,sy=0,dx=0,drag=false,lock=null;
@@ -185,4 +187,5 @@ setInterval(()=>P.forEach(p=>p.label()),30000);setInterval(load,10*60000);
 addEventListener('resize',()=>P.forEach(p=>p.fit()));
 const c0=localStorage.fxCache;if(c0){const j=JSON.parse(c0);rates=j.rates;order=j.order;updated=j.updated;fresh=false}
 renderAll();load();
+if(document.fonts)document.fonts.ready.then(()=>P.forEach(p=>p.fit()));
 </script></body></html>
