@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-Hant"><head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="app-version" content="20261013-1410">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="換匯">
 <meta name="theme-color" content="#111318">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json?v=20261013-1410">
+<link rel="apple-touch-icon" href="icon.png?v=20261013-1410">
 <title>換匯</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -179,8 +183,13 @@ class Conv{
   this.expr=expr;this.render()}
 }
 const P=[new Conv($('P0'),'fxSel',['USD','TWD']),new Conv($('P1'),'fxSel2',['TWD','USD'])];
+try{const st=JSON.parse(localStorage.fxP2||'null');if(st&&st.expr){P[1].expr=st.expr;P[1].visited=true}}catch(e){}
+{const r=P[1].render.bind(P[1]);P[1].render=()=>{r();if(P[1].visited)localStorage.fxP2=JSON.stringify({expr:P[1].expr})}}
+const APPV=document.querySelector('meta[name=app-version]').content;
+async function checkVersion(){try{const t=await (await fetch('./?vc='+Date.now(),{cache:'no-store'})).text();const m=t.match(/name="app-version" content="([^"]+)"/);
+ if(m&&m[1]!==APPV&&sessionStorage.fxReloaded!==m[1]){sessionStorage.fxReloaded=m[1];location.replace(location.pathname+'?v='+m[1])}}catch(e){}}
 function renderAll(){P.forEach(p=>p.render())}
-function carry(){const a=P[0],b=P[1],v=a.result();b.sel[0]=a.sel[1];
+function carry(){const a=P[0],b=P[1],v=a.result();if(b.visited&&b.expr!=='0')return;b.visited=true;b.sel[0]=a.sel[1];
  if(b.sel[1]===b.sel[0])b.sel[1]=b.sel[0]==='TWD'?'USD':'TWD';
  if(!rates[b.sel[1]])b.sel[1]=b.sel[0]==='TWD'?'USD':'TWD';
  const d=DEC[a.sel[1]]??2,dd=(a.sel[1]!=='BTC'&&Math.abs(v)>0&&Math.abs(v)<1)?Math.max(d,4):d;b.expr=isNaN(v)?'0':numStr(+v.toFixed(dd));b.save();b.render()}
@@ -207,7 +216,8 @@ async function load(){document.querySelectorAll('.rico').forEach(r=>r.classList.
  document.querySelectorAll('.rico').forEach(r=>r.classList.remove('spin'));renderAll();
  if(!updated)document.querySelectorAll('.upd').forEach(u=>{u.className='upd err';u.textContent='無法取得匯率'})}
 document.querySelectorAll('.sheet').forEach(s=>s.addEventListener('click',e=>{if(e.target===s)s.classList.remove('show')}));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){load();checkVersion()}});
+checkVersion();
 setInterval(()=>P.forEach(p=>p.label()),30000);setInterval(load,10*60000);
 addEventListener('resize',()=>P.forEach(p=>p.fit()));
 const c0=localStorage.fxCache;if(c0){const j=JSON.parse(c0);rates=j.rates;order=j.order;updated=j.updated;fresh=false}
