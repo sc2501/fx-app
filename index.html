@@ -4,15 +4,16 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="app-version" content="20261013-1412">
+<meta name="app-version" content="20261013-1416">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="換匯">
 <meta name="theme-color" content="#111318">
-<link rel="manifest" href="manifest.json?v=20261013-1412">
-<link rel="apple-touch-icon" href="icon.png?v=20261013-1412">
+<link rel="icon" href="icon.png?v=20261013-1416">
+<link rel="manifest" href="manifest.json?v=20261013-1416">
+<link rel="apple-touch-icon" href="icon.png?v=20261013-1416">
 <title>換匯</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -207,7 +208,7 @@ track.addEventListener('touchend',()=>{if(!drag)return;drag=false;if(lock!=='x')
 function openPicker(conv,i){picking=[conv,i];$('list').innerHTML=order.map(c=>`<div class="item ${c===conv.sel[i]?'on':''}" data-c="${c}"><div class="flag${c==='BTC'?' btc':''}">${flagHTML(c)}</div><div class="n">${c}<small>${rates[c].name}</small></div></div>`).join('');
  $('list').querySelectorAll('.item').forEach(it=>it.onclick=()=>{const c=it.dataset.c,o=1-i;if(conv.sel[o]===c&&conv!==P[1])conv.sel[o]=conv.sel[i];conv.sel[i]=c;conv.save();$('picker').classList.remove('show');conv.render()});
  $('picker').classList.add('show')}
-function openAbout(){$('aboutBody').innerHTML=`<p>匯率來源：你的 Google 試算表「匯率」分頁（GOOGLEFINANCE，約每 20 分鐘更新）。</p><p>匯率為 1 單位外幣兌新台幣，其他貨幣之間以台幣交叉換算。</p><p>往左滑或點右側橘色把手可進入第二頁，把這頁的換算結果帶過去繼續算。</p><p>最後更新：${updated?new Date(updated).toLocaleString('zh-TW'):'—'}${fresh?'':'（離線，使用快取）'}</p><p><a href="https://docs.google.com/spreadsheets/d/${SHEET}/edit" target="_blank">開啟試算表</a></p>`;$('about').classList.add('show')}
+function openAbout(){$('aboutBody').innerHTML=`<p>匯率來源：你的 Google 試算表「匯率」分頁（GOOGLEFINANCE，約每 20 分鐘更新）。</p><p>匯率為 1 單位外幣兌新台幣，其他貨幣之間以台幣交叉換算。</p><p>往左滑或點右側橘色把手可進入第二頁，把這頁的換算結果帶過去繼續算。</p><p>最後更新：${updated?new Date(updated).toLocaleString('zh-TW'):'—'}${fresh?'':'（離線，使用快取）'}</p><p>版本：${APPV}</p><p><a href="https://docs.google.com/spreadsheets/d/${SHEET}/edit" target="_blank">開啟試算表</a></p>`;$('about').classList.add('show')}
 async function load(){document.querySelectorAll('.rico').forEach(r=>r.classList.add('spin'));
  try{const r=await fetch(CSV+'&t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const [o,ord]=parse(await r.text());if(ord.length<2)throw 0;
   rates=o;order=ord;updated=Date.now();fresh=true;localStorage.fxCache=JSON.stringify({rates,order,updated})}
@@ -217,6 +218,9 @@ async function load(){document.querySelectorAll('.rico').forEach(r=>r.classList.
 document.querySelectorAll('.sheet').forEach(s=>s.addEventListener('click',e=>{if(e.target===s)s.classList.remove('show')}));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){load();checkVersion()}});
 checkVersion();
+addEventListener('pageshow',e=>{if(e.persisted){load();checkVersion()}});
+if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
+if(window.caches)caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{});
 setInterval(()=>P.forEach(p=>p.label()),30000);setInterval(load,10*60000);
 addEventListener('resize',()=>P.forEach(p=>p.fit()));
 const c0=localStorage.fxCache;if(c0){const j=JSON.parse(c0);rates=j.rates;order=j.order;updated=j.updated;fresh=false}
