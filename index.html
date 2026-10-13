@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="換匯">
+<meta name="theme-color" content="#2c2c2c">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<title>換匯</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;background:#2c2c2c;color:#fff;font-family:-apple-system,"SF Pro Display","PingFang TC",sans-serif;overflow:hidden;touch-action:manipulation}
+#app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top)}
+.row{flex:0 0 auto;height:140px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #3a3a3a;background:#2c2c2c}
+.cur{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;min-width:56px}
+.flag{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#555;display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;overflow:hidden;border:1px solid #444}
+.flag.btc{background:#f7931a}
+.code{font-weight:700;font-size:18px;letter-spacing:.5px}
+.amt{font-size:44px;font-weight:600;text-align:right;flex:1;margin-left:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr}
+.row.active .amt{color:#fff}
+.expr{font-size:16px;color:#aaa;text-align:right}
+.amtwrap{flex:1;display:flex;flex-direction:column;align-items:flex-end;min-width:0}
+#pad{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr);gap:1px;background:#222}
+#pad button{border:0;font-size:32px;font-weight:600;color:#fff;background:#636363;font-family:inherit}
+#pad button.f{background:#474747}
+#pad button.op{background:#f2a352}
+#pad button:active{filter:brightness(1.3)}
+#pad button.op.sel{background:#fff;color:#f2a352}
+#bar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 20px calc(14px + env(safe-area-inset-bottom));background:#2c2c2c}
+#bar button{background:none;border:0;color:#fff;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+#info{text-align:center;font-size:15px;font-weight:600}
+#upd{color:#3ec27a;font-size:13px;margin-top:4px;font-weight:500}
+#upd.err{color:#ff6b5b}
+.spin{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;z-index:9}
+.sheet.show{display:flex}
+.panel{background:#1c1c1e;width:100%;max-height:75%;border-radius:16px 16px 0 0;overflow:auto;padding:8px 0 calc(12px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.panel h3{text-align:center;padding:12px;font-size:17px}
+.item{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid #2c2c2e;cursor:pointer}
+.item .flag{width:36px;height:36px;font-size:22px}
+.item .n{flex:1}.item .n small{display:block;color:#999;font-size:13px}
+.item.on{background:#2c2c2e}
+.panel p{padding:6px 20px;color:#ccc;font-size:14px;line-height:1.6;word-break:break-all}
+.panel a{color:#4da3ff}
+@media (max-height:700px){.row{height:110px}.amt{font-size:38px}}
+</style></head><body>
+<div id="app">
+ <div class="row active" id="r0"><div class="cur" data-i="0"><div class="flag" id="f0"></div><div class="code" id="c0"></div></div><div class="amtwrap"><div class="expr" id="e0"></div><div class="amt" id="a0">1</div></div></div>
+ <div class="row" id="r1"><div class="cur" data-i="1"><div class="flag" id="f1"></div><div class="code" id="c1"></div></div><div class="amtwrap"><div class="expr"></div><div class="amt" id="a1">0</div></div></div>
+ <div id="pad">
+  <button class="f" data-k="C">C</button><button class="f" data-k="B">←</button><button class="f" data-k="S">⇅</button><button class="op" data-k="/">÷</button>
+  <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="*">×</button>
+  <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="-">−</button>
+  <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="+">+</button>
+  <button data-k="%">%</button><button data-k="0">0</button><button data-k=".">.</button><button class="op" data-k="=">=</button>
+ </div>
+ <div id="bar">
+  <button id="refresh" aria-label="重新整理"><svg id="rico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
+  <div><div id="info">載入中…</div><div id="upd"></div></div>
+  <button id="menu" aria-label="資訊"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7.5" r="1.3" fill="#fff"/><circle cx="12" cy="12" r="1.3" fill="#fff"/><circle cx="12" cy="16.5" r="1.3" fill="#fff"/></svg></button>
+ </div>
+</div>
+<div class="sheet" id="picker"><div class="panel"><h3>選擇貨幣</h3><div id="list"></div></div></div>
+<div class="sheet" id="about"><div class="panel"><h3>資料來源</h3><div id="aboutBody"></div></div></div>
+<script>
+const SHEET='1_oeHpdG5VQurroIPG7kzDmwwtfLkCuqLJsN79_zIDGo';
+const CSV=`https://docs.google.com/spreadsheets/d/${SHEET}/gviz/tq?tqx=out:csv&sheet=%E5%8C%AF%E7%8E%87&range=A3:B22`;
+const CC={TWD:'tw',USD:'us',HKD:'hk',GBP:'gb',JPY:'jp',AUD:'au',CAD:'ca',SGD:'sg',CHF:'ch',THB:'th',NZD:'nz',EUR:'eu',KRW:'kr',MYR:'my',IDR:'id',PHP:'ph',VND:'vn',CNY:'cn'};
+const DEC={JPY:0,KRW:0,IDR:0,VND:0,BTC:8};
+let rates={TWD:{name:'新台幣',r:1}},order=['TWD'],sel=JSON.parse(localStorage.fxSel||'["USD","TWD"]'),expr='1',fresh=true,updated=0,pickFor=0;
+const $=id=>document.getElementById(id);
+function flagHTML(c){if(c==='BTC')return '₿';const k=CC[c];return k?`<img src="https://flagcdn.com/w80/${k}.png" style="width:100%;height:100%;object-fit:cover">`:c.slice(0,1)}
+function setFlag(el,c){el.className='flag'+(c==='BTC'?' btc':'');el.innerHTML=flagHTML(c)}
+function parse(csv){const out={TWD:{name:'新台幣',r:1}},ord=['TWD'];
+ csv.trim().split('\n').forEach(l=>{const m=l.match(/^"(.*)","(.*)"/);if(!m)return;const n=m[1].trim(),code=n.slice(-3).toUpperCase(),r=parseFloat(m[2]);
+  if(!/^[A-Z]{3}$/.test(code)||!(r>0)||out[code])return;out[code]={name:n.slice(0,-3),r};ord.push(code)});
+ return [out,ord]}
+function evalExpr(s){s=s.replace(/[+\-*/.]$/,'');if(!s)return 0;
+ s=s.replace(/(\d+\.?\d*)%/g,'($1/100)');
+ if(!/^[\d+\-*/.() ]+$/.test(s))return NaN;try{const v=Function('return ('+s+')')();return isFinite(v)?v:NaN}catch(e){return NaN}}
+function fmt(v,c){if(isNaN(v))return '錯誤';const d=DEC[c]??2;const a=Math.abs(v);let dd=d;if(c!=='BTC'&&a>0&&a<1)dd=Math.max(d,4);
+ return v.toLocaleString('en-US',{maximumFractionDigits:dd,minimumFractionDigits:0})}
+function show(s){return s.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−')}
+function render(){const [a,b]=sel;$('c0').textContent=a;$('c1').textContent=b;setFlag($('f0'),a);setFlag($('f1'),b);
+ const v=evalExpr(expr);const hasOp=/[+\-*/%]/.test(expr.slice(1));
+ $('a0').textContent=hasOp?fmt(v,a):show(expr).replace(/^(-?\d+)/,m=>Number(m).toLocaleString('en-US'));
+ $('e0').textContent=hasOp?show(expr):'';
+ const ra=rates[a],rb=rates[b];
+ $('a1').textContent=ra&&rb?fmt(v*ra.r/rb.r,b):'—';
+ $('info').textContent=ra&&rb?`1 ${a} = ${fmt(ra.r/rb.r,b==='BTC'?'BTC':(ra.r/rb.r<1?'X':'Y'))} ${b}`:'載入中…';
+ fitAll();updLabel()}
+function fitAll(){['a0','a1'].forEach(id=>{const e=$(id);e.style.fontSize='';let s=parseFloat(getComputedStyle(e).fontSize);while(e.scrollWidth>e.clientWidth&&s>18){s-=2;e.style.fontSize=s+'px'}})}
+function updLabel(){const u=$('upd');if(!updated){u.textContent='';return}const m=Math.floor((Date.now()-updated)/60000);
+ if(!fresh){u.className='err';u.textContent='離線・'+ago(m)}else{u.className='';u.textContent=ago(m)}}
+function ago(m){return m<1?'剛剛':m<60?m+' 分鐘前':m<1440?Math.floor(m/60)+' 小時前':Math.floor(m/1440)+' 天前'}
+async function load(){$('rico').classList.add('spin');
+ try{const r=await fetch(CSV+'&t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const [o,ord]=parse(await r.text());if(ord.length<2)throw 0;
+  rates=o;order=ord;updated=Date.now();fresh=true;localStorage.fxCache=JSON.stringify({rates,order,updated})}
+ catch(e){fresh=false;const c=localStorage.fxCache;if(c){const j=JSON.parse(c);rates=j.rates;order=j.order;updated=j.updated}else{$('upd').className='err';$('upd').textContent='無法取得匯率'}}
+ $('rico').classList.remove('spin');render()}
+function key(k){const last=expr.slice(-1);
+ if(k==='C'){expr='0'}
+ else if(k==='B'){expr=expr.length>1?expr.slice(0,-1):'0'}
+ else if(k==='S'){const v=evalExpr(expr),ra=rates[sel[0]],rb=rates[sel[1]];sel=[sel[1],sel[0]];if(ra&&rb&&!isNaN(v)){expr=String(+(v*ra.r/rb.r).toFixed(DEC[sel[0]]??2))}save()}
+ else if(k==='='){const v=evalExpr(expr);expr=isNaN(v)?'0':String(+v.toFixed(10))}
+ else if('+-*/'.includes(k)){if('+-*/'.includes(last))expr=expr.slice(0,-1)+k;else if(last!=='.')expr+=k}
+ else if(k==='%'){if(/\d$/.test(expr))expr+='%'}
+ else if(k==='.'){const seg=expr.split(/[+\-*/]/).pop();if(!seg.includes('.')&&!seg.includes('%'))expr+=(seg===''?'0.':'.')}
+ else{if(last==='%')expr+='*';const seg=expr.split(/[+\-*/]/).pop();if(expr==='0')expr=k;else if(seg==='0')expr=expr.slice(0,-1)+k;else if(seg.replace('.','').length<12)expr+=k}
+ document.querySelectorAll('.op').forEach(b=>b.classList.toggle('sel',b.dataset.k===expr.slice(-1)&&'+-*/'.includes(b.dataset.k)));
+ render()}
+function save(){localStorage.fxSel=JSON.stringify(sel)}
+document.querySelectorAll('#pad button').forEach(b=>b.addEventListener('click',()=>key(b.dataset.k)));
+document.querySelectorAll('.cur').forEach(c=>c.addEventListener('click',()=>{pickFor=+c.dataset.i;openPicker()}));
+function openPicker(){$('list').innerHTML=order.map(c=>`<div class="item ${c===sel[pickFor]?'on':''}" data-c="${c}"><div class="flag${c==='BTC'?' btc':''}">${flagHTML(c)}</div><div class="n">${c}<small>${rates[c].name}</small></div></div>`).join('');
+ $('list').querySelectorAll('.item').forEach(i=>i.onclick=()=>{const c=i.dataset.c,o=1-pickFor;if(sel[o]===c)sel[o]=sel[pickFor];sel[pickFor]=c;save();$('picker').classList.remove('show');render()});
+ $('picker').classList.add('show')}
+$('menu').onclick=()=>{$('aboutBody').innerHTML=`<p>匯率來源：你的 Google 試算表「匯率」分頁（GOOGLEFINANCE，約每 20 分鐘更新）。</p><p>匯率為 1 單位外幣兌新台幣，其他貨幣之間以台幣交叉換算。</p><p>最後更新：${updated?new Date(updated).toLocaleString('zh-TW'):'—'}${fresh?'':'（離線，使用快取）'}</p><p><a href="https://docs.google.com/spreadsheets/d/${SHEET}/edit" target="_blank">開啟試算表</a></p>`;$('about').classList.add('show')};
+document.querySelectorAll('.sheet').forEach(s=>s.addEventListener('click',e=>{if(e.target===s)s.classList.remove('show')}));
+$('refresh').onclick=load;
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+setInterval(updLabel,30000);setInterval(load,10*60000);
+window.addEventListener('resize',fitAll);
+const c=localStorage.fxCache;if(c){const j=JSON.parse(c);rates=j.rates;order=j.order;updated=j.updated;fresh=false}
+render();load();
+</script></body></html>
